@@ -15,6 +15,17 @@ getdata<-function(path){
 
 getdata(path13)
 
+data13<-getdata(path13)
+save(data13,file='./data/data13.rdata')
+rm(data13)
+gc()
+load('./data/data13.rdata')
+
+length(data13)
+
+data13 %>% select(x229:x258) %>% filter(x229=='')
+data13[,13:42][data13[,13:42]=='NaN']<-0
+data13[,13:34]<-lapply(data13[,13:34],as.numeric)
 
   
   
