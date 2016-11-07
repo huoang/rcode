@@ -1,5 +1,5 @@
    
-    setwd('/mnt/e/pyr')
+    setwd('/mnt/e/R')
     getwd()
     rm(list=ls()) ##
     ls() 
