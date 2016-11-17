@@ -70,17 +70,20 @@ write_feather(fina_rep_inpfee15,'./data/procdata/fina_rep_fee15.pyr')
 
 hdf_fee <- H5Fcreate("./data/hdf5/df_fee_15.h5")
 h5write(hos_dic,fhdf5,"hos_dic")
-h5ls(fhdf5)
+h5ls(hdf_fee)
 rm(hos_dic)
 rm(hosdic)
 class(hos_dic)
-hos_dic<-data.frame(names(hos_dic),hos_dic)
-hos_dic<-tbl_df(hos_dic)
-h5writeDataset.data.frame(hos_dic, fhdf5, 'hosdic', 
-            level=5, DataFrameAsCompound = TRUE)
-hosdic <- h5read(fhdf5,"hosdic",DataFrameAsCompound = TRUE)
-class(hosdic)
+str(hos_dic)
+hos_dic<-data.frame(names(hos_dic),
+                    hos_dic,stringsAsFactors = FALSE)
 
+hos_dic<-tbl_df(hos_dic)
+h5writeDataset.data.frame(hos_dic,hdf_fee, 'hosdic5', 
+            level=5, DataFrameAsCompound = TRUE)
+hosdic <- h5read(hdf_fee,"hosdic5")
+class(hosdic)
+H5Fclose(hdf_fee)
 
 H5Fclose(fid)
 ?h5createFile
