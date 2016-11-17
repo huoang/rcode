@@ -476,7 +476,8 @@
    load("./rdata/cle_smp_maincode_fee_15.rdata")
    
    ###debug could be deleted when close file
-   hosnames<-read.csv("./rdata/hosnames.csv")
+   hosnames<-read.csv("./rdoc/Hosnames.csv")
+   
    names(hosnames)<-c("code","name")
    hos.names.dic<-as.character(hosnames$name)
    names(hos.names.dic)<-as.character(hosnames$code)   

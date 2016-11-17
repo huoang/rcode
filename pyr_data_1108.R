@@ -1,33 +1,94 @@
+getfiles <- function(strpath) {
+  rfiles = dir(strpath,full.names = TRUE)
+  path.len = lapply(rfiles,nchar)
+  path.len = as.numeric(path.len)
+  path.df = data.frame(rfiles,path.len)
+  path.df = path.df %>% arrange(rfiles) %>% arrange(path.len) 
+  path.df$rfiles = as.character(path.df$rfiles)
+  return (path.df$rfiles)
+}
 
-dirpath=list.dirs('/mnt/e/ipy/procdata/2013/')
-filepath=list.files(dirpath)
-path13=paste(dirpath,filepath,sep='')
+files15 <- getfiles('e:/pyr/data/y2015/2015x/')
 
-getdata<-function(path){
-  df_rlts<-data.frame() 
-  for (i in 1:length(path)){
-    df_rep<-read_feather(path[i])
-    df_rlts<-rbind(df_rlts,df_rep)
-  }
-  return(df_rlts)
-} 
+df_fee = read_feather(files15[13])
 
-data13<-getdata(path13)
-save(data13,file='./data/data13.rdata')
-rm(data13)
-gc()
-load('./data/data13.rdata')
+df_veri = read_feather(files15[43])
 
-length(data13)
-rm(data)
-data13 %>% select(x229:x258) %>% filter(x229=='')
-data13[,5:34][data13[,5:34]=='NaN']<-0
-data13[,5:34][data13[,5:34]=='nan']<-0
-data13[,5:34]<-lapply(data13[,5:34],as.numeric)
-fee13<-data13[,5:34]
-save(fee13,file='./data/fee13.rdata')
-str(fee13)
-fee_sum_13<-data.frame(lapply(fee13,sum))
-fee_sum_13['x229']
+df_fee = cbind(df_fee,df_veri)
 
-sum(fee_sum_13[c(-1,-2,-12,-14,-15,-19)])
+df_fee = tbl_df(df_fee[,c(1,2,4)])
+
+df_fee_seld = df_fee %>% filter(x262 == "False")
+
+
+
+df_fee_seld$hosname = hos_dic[df_fee_seld$x5]
+
+df_fee_seld =  df_fee_seld %>% select(x5,hosname,x229)
+
+names(df_fee_seld) = c('id','name','ttlfee')
+
+df_fee_seld$ttlfee = as.numeric(df_fee_seld$ttlfee) 
+
+df_fee_seld = df_fee_seld %>% filter(!is.na(name) & !is.na(ttlfee))
+
+df_fee_seld %>% filter(is.na(ttlfee))
+
+df_fee_seld %>% filter(is.na(name))
+
+sum_ttl = df_fee_seld %>% group_by(name) %>% 
+  summarise(n=n(),ttlfee_by_id = mean(ttlfee)) %>%
+  arrange(ttlfee_by_id)
+
+fina_rep = read_csv('e:/pyr/data/procdata/fee_inp.csv',col_names = FALSE,
+                    col_types = NULL,
+                    locale(encoding = 'gbk'))
+
+
+
+fina_rep_inpfee15 = fina_rep %>% select(X1,X12,X13,X30,X31) 
+
+fina_rep_inpfee15 = fina_rep_inpfee15[4:nrow(fina_rep_inpfee15),]
+
+fina_rep_inpfee15[,2:5] <- lapply(fina_rep_inpfee15[,2:5] ,as.character)
+
+fina_rep_inpfee15[,2:5] <- lapply(fina_rep_inpfee15[,2:5] ,as.numeric)
+
+str(fina_rep_inpfee15)
+
+
+#############################write part============================
+
+write_feather(df_fee_seld,'./data/procdata/ttlfee_2015.pyr')
+
+save(df_fee_seld,file='./data/procdata/ttlfee_2015.rdata')
+
+save(hos_dic,file = 'e:/pyr/data/procdata/hos_dic.rdata')
+
+write_feather(fina_rep_inpfee15,'./data/procdata/fina_rep_fee15.pyr')
+
+
+hdf_fee <- H5Fcreate("./data/hdf5/df_fee_15.h5")
+h5write(hos_dic,fhdf5,"hos_dic")
+h5ls(fhdf5)
+rm(hos_dic)
+rm(hosdic)
+class(hos_dic)
+hos_dic<-data.frame(names(hos_dic),hos_dic)
+hos_dic<-tbl_df(hos_dic)
+h5writeDataset.data.frame(hos_dic, fhdf5, 'hosdic', 
+            level=5, DataFrameAsCompound = TRUE)
+hosdic <- h5read(fhdf5,"hosdic",DataFrameAsCompound = TRUE)
+class(hosdic)
+
+
+H5Fclose(fid)
+?h5createFile
+
+#############################load part==============================
+
+load('e:/pyr/data/procdata/hos_dic.rdata')
+
+read_feather('./data/procdata/ttlfee_2015.pyr')
+
+
