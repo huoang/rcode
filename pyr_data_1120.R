@@ -36,35 +36,71 @@ df_fee_seld %>% filter(is.na(ttlfee))
 
 df_fee_seld %>% filter(is.na(name))
 
-df_fee_seld$ttlfee <- as.numeric(df_fee_seld$ttlfee)
-
 df_fee_15 <- df_fee_seld %>% filter(ttlfee > 0)
 
 df_fee_15 <- tbl_df(df_fee_15)
 
-df_fee_15 <- df_fee_seld %>% filter(ttlfee > 1000000)
+df_fee_15 <- df_fee_15 %>% filter(ttlfee < 1000000)
 
-sum_ttl = df_fee_15 %>% group_by(name) %>% 
-        summarise(n=n(),ttlfee_by_id = mean(ttlfee)) %>%
-        arrange(ttlfee_by_id)
+df_fee_seld$ttlfee <- as.numeric(df_fee_seld$ttlfee)
 
+df_fee_15 <- tbl_df(df_fee_15)
 
-binsize <- diff(range(df_fee_15$ttlfee)) / 1000
+str(df_fee_15)
 
-breaks = seq(0,max(df_fee_15$ttlfee),by = 20000)
+sum_ttl <- df_fee_15 %>% group_by(id,name) %>% 
+  summarise(n=n(),ttlfee_by_id = mean(ttlfee)) %>%
+  filter(n > 2000) %>%
+  arrange(ttlfee_by_id) %>%
+  ungroup %>%
+  View
 
-quan999 <- quantile(df_fee_15$ttlfee,.999)
+binsize <- diff(range(df_fee_15$ttlfee)) / 3000
 
-quan001 <- quantile(df_fee_15$ttlfee,.001)
+breaks = seq(0,max(df_fee_15$ttlfee),by = 100000)
+
+quan999 <- quantile(df_fee_15$ttlfee,.9999)
+
+quan001 <- quantile(df_fee_15$ttlfee,.0001)
 
 df_fee_15 <- 
   df_fee_15 %>% filter(ttlfee < quan999 & ttlfee > quan001)
 
+df_fee_15 %>% filter(ttlfee >= 200000)
 
-df_fee_15 %>% filter  
-hist_fee_15 <- ggplot(df_fee_15,aes(x = ttlfee)) +
-               geom_histogram(binwidth = binsize) +
-               scale_x_continuous(breaks = breaks)
+hist_fee_15 <- 
+        ggplot(df_fee_15,aes(x = ttlfee,
+                         y = ..density..)) +
+        geom_histogram(fill = 'cornsilk',color = 'grey60',
+              binwidth = binsize) +
+        scale_x_continuous(breaks = breaks,
+                           limits = c(0,200000))
+        geom_density()
+                
+
+
+
+    ggplot(df_fee_15,aes(x = ttlfee)) +
+    geom_histogram(fill = 'cornsilk',color = 'purple',
+                   binwidth = binsize) +
+    scale_x_continuous(breaks = breaks) +
+    coord_cartesian(xlim = c(0,150000))
+
+df_fee_15_log <-        
+    df_fee_15 %>% filter(ttlfee > 50) %>%
+              group_by(id,name)   %>%
+              summarise(n=n())
+          
+    smp_log <- sample(log(df_fee_15_log$ttlfee),1000)
+    
+    ggplot(df_fee_15_log,aes(x = log(ttlfee))) +
+    geom_histogram(fill = 'cornsilk',color = 'purple') 
+    
+    pearson.test(smp_log)
+    shapiro.test(smp_log)
+    min(log(df_fee_15$ttlfee))  
+    min(df_fee_15$ttlfee)
+    exp(9)
 
 str(hist_fee_15)
 
