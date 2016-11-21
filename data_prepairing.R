@@ -1,5 +1,6 @@
    
     setwd('/mnt/e/pyr')
+    setwd('e:/pyr')
     getwd()
     rm(list=ls()) ##
     ls() 
@@ -14,10 +15,13 @@
   	library(dplyr)
 	  library(stringr)
     library(feather)
+    library(rhdf5)
     library(readr)
 	  library(data.table)
   	library(plyr)
 	  library(reshape2)
+    
+    
     
     
     library(devtools)
@@ -47,6 +51,8 @@
 	install.packages("devtools")
 	
 	devtools::install_github("wesm/feather/R")
+	source('http://bioconductor.org/biocLite.R')
+	biocLite('rhdf5')
 	
 	
 	install.packages('qcc')
