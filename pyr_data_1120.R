@@ -1,4 +1,4 @@
-getfiles <- function(strpath) {
+opgetfiles <- function(strpath) {
   rfiles = dir(strpath,full.names = TRUE)
   path.len = lapply(rfiles,nchar)
   path.len = as.numeric(path.len)
@@ -28,6 +28,8 @@ df_fee_seld =  df_fee_seld %>% select(x5,hosname,x229)
 
 names(df_fee_seld) = c('id','name','ttlfee')
 
+df_fee_seld$ttlfee = as.character(df_fee_seld$ttlfee) 
+
 df_fee_seld$ttlfee = as.numeric(df_fee_seld$ttlfee) 
 
 df_fee_seld = df_fee_seld %>% filter(!is.na(name) & !is.na(ttlfee))
@@ -36,36 +38,68 @@ df_fee_seld %>% filter(is.na(ttlfee))
 
 df_fee_seld %>% filter(is.na(name))
 
-df_fee_seld$ttlfee <- as.numeric(df_fee_seld$ttlfee)
+df_fee_seld <- df_fee_seld %>% filter(ttlfee > 0)
 
-df_fee_15 <- df_fee_seld %>% filter(ttlfee > 0)
+df_fee_15 <- df_fee_seld %>% filter(ttlfee < 1000000)
 
 df_fee_15 <- tbl_df(df_fee_15)
 
-df_fee_15 <- df_fee_seld %>% filter(ttlfee > 1000000)
+rm(df_fee_seld);gc()
 
-sum_ttl = df_fee_15 %>% group_by(name) %>% 
-        summarise(n=n(),ttlfee_by_id = mean(ttlfee)) %>%
-        arrange(ttlfee_by_id)
+df_fee_15 %>% group_by(id,name) %>% 
+              summarise(n=n(),ttlfee_by_id = mean(ttlfee)) %>%
+              arrange(ttlfee_by_id) %>%
+              filter(n >=5000) %>%
+              filter(ttlfee_by_id > 1000)
 
 
-binsize <- diff(range(df_fee_15$ttlfee)) / 1000
+df_fee_15 %>% filter(ttlfee >2000 & ttlfee <= 4000) %>%
+              group_by(ttlfee) %>%
+              summarise(n = n()) %>%
+              arrange(-n) %>%
+              View
+  
+
+
+
+
+breaks <- seq(0,max(df_fee_15$ttlfee),by = 2000)
+
+df_fee_15$group <- cut(df_fee_15$ttlfee,breaks = breaks)
+
+df_fee_15 %>% group_by(group) %>% 
+              summarise(n=n()) %>%
+              arrange(n) %>%
+              filter(n>100) %>%
+              arrange(group) %>%
+              View
+
+binsize <- diff(range(df_fee_15$ttlfee)) / 2000
 
 breaks = seq(0,max(df_fee_15$ttlfee),by = 20000)
 
-quan999 <- quantile(df_fee_15$ttlfee,.999)
+quan999 <- quantile(df_fee_15$ttlfee,.9999)
 
-quan001 <- quantile(df_fee_15$ttlfee,.001)
+quan001 <- quantile(df_fee_15$ttlfee,.0001)
 
 df_fee_15 <- 
   df_fee_15 %>% filter(ttlfee < quan999 & ttlfee > quan001)
 
-
-df_fee_15 %>% filter  
 hist_fee_15 <- ggplot(df_fee_15,aes(x = ttlfee)) +
                geom_histogram(binwidth = binsize) +
-               scale_x_continuous(breaks = breaks)
+               scale_x_continuous(breaks = breaks) +
+               xlim(0,100000) +
+               geom_density() 
 
+point <- data.frame(c(3000,3200,3400),c(1200000,120000,120000)
+                    )
+
+names(point) <- c('x',"y")
+               
+smp <- hist_fee_15 +annotate('text',x = 3,y)
+
+
+?data.frame
 str(hist_fee_15)
 
 
@@ -161,7 +195,7 @@ h5_perhos <- H5Fcreate("./data/hdf5/R_perhos.h5")
 h5_perhos <- H5Fopen("./data/hdf5/R_perhos.h5")
 
 nyzxyy <- read_feather(
-  'e:/pyr/data/y2015/2015perhos/410000002820_2015.pyr')
+  './data/y2015/2015perhos/410000002820_2015.pyr')
 
 xmdyyy <-  read_feather(
   'e:/pyr/data/y2015/2015perhos/410000000884_2015.pyr')
@@ -175,13 +209,13 @@ out_xm %>% select(x229 : x260)
 xmdyyy[,229:260] <- lapply(xmdyyy[,229:260],as.numeric)
 
 h5writeDataset.data.frame(nyzxyy,h5_perhos,'410000002820', 
-                          level=7, DataFrameAsCompound = TRUE)
+                          level=7)
 
 h5writeDataset.data.frame(xmdyyy,h5_perhos,'410000000884', 
                           level=7)
+?H5
 
-
-H5Fclose(py_perhos_15)
+H5Fclose(h5_perhos)
 
 py_perhos_15 = H5Fopen("./data/hdf5/py_perhos_15")
 
@@ -195,7 +229,7 @@ nyzxyy
 
 #############################load part==============================
 
-load('e:/pyr/data/procdata/hos_dic.rdata')
+load('./data/procdata/hos_dic.rdata')
 
 load('./data/procdata/ttlfee_2015.rdata')
 

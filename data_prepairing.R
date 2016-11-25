@@ -45,7 +45,7 @@
 	install.packages("stringr")
 	install.packages("readr")
 	install.packages('ggplot2')
-	install.packages('feather-format')
+	install.packages('feather')
 	install.packages("car")
 	install.packages('nortest')	 
 	install.packages("devtools")
