@@ -8,7 +8,7 @@ getfiles <- function(strpath) {
   return (path.df$rfiles)
 }
 
-files15 <- getfiles('e:/pyr/data/y2015/2015x/')
+files15 <- getfiles('/mnt/e/pyr/data/y2015/2015x/')
 
 df_fee = read_feather(files15[13])
 
@@ -28,21 +28,17 @@ df_fee_seld =  df_fee_seld %>% select(x5,hosname,x229)
 
 names(df_fee_seld) = c('id','name','ttlfee')
 
-df_fee_seld$ttlfee = as.numeric(df_fee_seld$ttlfee) 
+
 
 df_fee_seld = df_fee_seld %>% filter(!is.na(name) & !is.na(ttlfee))
 
-df_fee_seld %>% filter(is.na(ttlfee))
-
-df_fee_seld %>% filter(is.na(name))
+df_fee_seld$ttlfee = as.numeric(df_fee_seld$ttlfee) 
 
 df_fee_15 <- df_fee_seld %>% filter(ttlfee > 0)
 
 df_fee_15 <- tbl_df(df_fee_15)
 
 df_fee_15 <- df_fee_15 %>% filter(ttlfee < 1000000)
-
-df_fee_seld$ttlfee <- as.numeric(df_fee_seld$ttlfee)
 
 df_fee_15 <- tbl_df(df_fee_15)
 
@@ -55,9 +51,9 @@ sum_ttl <- df_fee_15 %>% group_by(id,name) %>%
   ungroup %>%
   View
 
-binsize <- diff(range(df_fee_15$ttlfee)) / 3000
+df_fee_15 %>% filter(id == '410000000624')
 
-breaks = seq(0,max(df_fee_15$ttlfee),by = 100000)
+
 
 quan999 <- quantile(df_fee_15$ttlfee,.9999)
 
@@ -78,9 +74,11 @@ hist_fee_15 <-
         geom_density()
                 
 
+binsize <- diff(range(df_fee_15$ttlfee)) / 2000
+        
+breaks = seq(0,max(df_fee_15$ttlfee),by = 50000)
 
-
-    ggplot(df_fee_15,aes(x = ttlfee)) +
+  ggplot(df_fee_15,aes(x = ttlfee)) +
     geom_histogram(fill = 'cornsilk',color = 'purple',
                    binwidth = binsize) +
     scale_x_continuous(breaks = breaks) +
@@ -231,7 +229,9 @@ nyzxyy
 
 #############################load part==============================
 
-load('e:/pyr/data/procdata/hos_dic.rdata')
+write_feather(hos_dic,'./data/procdata/hos_dic.pyr')
+
+load('./data/procdata/hos_dic.rdata')
 
 load('./data/procdata/ttlfee_2015.rdata')
 
