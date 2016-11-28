@@ -41,8 +41,8 @@ sum_ttl <- df_fee_15 %>% group_by(id,name) %>%
   ungroup %>%
   View
 
-
-hos_info <- read_csv('e:/pyr/data/procdata/hos_info.csv',
+#######################  S =======================================
+hos_info <- read_csv('/mnt/e/pyr/data/procdata/hos_info.csv',
                      col_names = TRUE,
                      col_types = NULL,
                      locale(encoding = 'gbk'))
@@ -80,9 +80,123 @@ df_fee_15$hosloc <- hosloc[df_fee_15$hoscode]
 
 df_fee_15$hosloc <- substr(df_fee_15$hosloc,1,4)
 
+areacode <- read.table('e:/pyr/data/procdata/area.txt')
+
+urbancode <- areacode[areacode$V1 %in% paste(c(4101:4117,4190),
+                                             '00',sep = ''),]
+urbancode$V2 <- as.character(urbancode$V2)
+
+urbancode$V2[18] <- '济源市'
+
+names(urbancode) <- c('uid','uname')
+
+uname <- urbancode$uname
+
+uid <- urbancode$uid
+
+uname <- gsub('(\\s+)','',uname)
+
+names(uid) <- uname
+
+gdp_urban <- read_csv('e:/pyr/data/procdata/gdp_urban.csv',
+                      col_names = TRUE,
+                      col_types = NULL,
+                      locale(encoding = 'gbk'))
+gdp_urban <- gdp_urban[order(gdp_urban$pcg,decreasing = TRUE),]
+
+gdp_urban$ecolvl <- 1 
+
+gdp_urban$ecolvl[7:12] <- 2
+
+gdp_urban$ecolvl[13:18] <- 3
+
+gdp_urban$urban <- gsub('(\\s+)','',gdp_urban$urban)
+
+gdp_urban$uid <- uid[gdp_urban$urban]
+
+gdp_urban$uid <- substr(gdp_urban$uid,1,4)
+
+ecolvl <- gdp_urban$ecolvl
+
+names(ecolvl) <- gdp_urban$uid
+
+df_fee_15$ecolvl <- ecolvl[df_fee_15$hosloc]
+
+################################ S  ====================================
+
+df_fee_15$bird <- as.integer(df_fee_15$bird)
+
+df_fee_15$rec <-as.integer(df_fee_15$rec)
+
+df_fee_15$gen <-as.integer(df_fee_15$gen)
+
+df_fee_15 <- df_fee_15 %>% arrange(-ttlfee)
+
+h_n_g_b <- paste(df_fee_15$hoscode,df_fee_15$name,
+                 df_fee_15$gen,df_fee_15$bird,sep = '-')
+
+
+fee_15 <- cbind(h_n_g_b,df_fee_15$hosname,df_fee_15$rec,df_fee_15$ttlfee)
+
+fee_15 <- tbl_df(fee_15)
+
+names(fee_15) <- c('hngb','hosname','rec','ttlfee')
+
+fee_15$ttlfee <- as.numeric(fee_15$ttlfee)
+
+fee_15_rlt <- fee_15 %>% 
+      select(hngb,ttlfee) %>%
+      group_by(hngb) %>% 
+      summarise(n = n(),mean = mean(ttlfee)
+                       ,ttl = sum(ttlfee))
+
+write_feather(fee_15_rlt,'/mnt/e/pyr/data/procdata/fee_15.pyr')
+
+df_fee_15[duplicated(h_n_g_b),]
+
+df_fee_15 %>% filter(name == '')
+
+
+fee_exc_nan  <- df_fee_15 %>% filter(!(name == 'nan' |
+                        gen == 'nan' | bird == 'nan'))
+
+fee_inc_nan  <- df_fee_15 %>% filter((name == 'nan' |
+                                      gen == 'nan' | bird == 'nan'))
+
+
+nmgenbir_exc_nan <- paste(df_fee_15_exc_nan$name,
+                          df_fee_15_exc_nan$gen,
+                          df_fee_15_exc_nan$bird,sep = '-')
+
+fee_exc_nan_dup <- df_fee_15_exc_nan[!duplicated(nmgenbir_exc_nan),]
+
+
+fee_exc_dup   <- rbind(fee_exc_nan_dup,fee_inc_nan)
+
+fee_exc_dup <- tbl_df(fee_exc_dup)
+
+fee_exc_dup %>% group_by(hoscode,hosname) %>% 
+  summarise(n=n(),fee_by_id = mean(ttlfee)) %>% 
+  filter (n > 1000) %>%
+  View
+
+dups_exc_nan <- df_fee_15_exc_nan[duplicated(nmgenbir_exc_nan),]
+
+dups_exc_nan %>% group_by(hosname) %>% summarise(n=n())
+
+df_fee_15 %>% filter(hoscode == '410000000708') 
+
+fee_exc_dup %>% filter(hoscode == '410000000708') 
+
+ (353952 - 245681) / 353952
+
+ (177290 - 126288) / 177290
+
 df_fee_15 <- df_fee_15 %>% 
             select(hoscode,hosname,hoslvl,hosloc,ecolvl,ttlfee)
 
+
+?duplicated
 
 minouts <- df_fee_15 %>% filter(ttlfee < 50)
 
@@ -115,47 +229,7 @@ ggplot(df_fee_15[df_fee_15$ecolvl==1,],aes(x = ttlfee)) +
   coord_cartesian(xlim = c(0,100000))
 
 
-areacode <- read.table('e:/pyr/data/procdata/area.txt')
 
-urbancode <- areacode[areacode$V1 %in% paste(c(4101:4117,4190),
-                                '00',sep = ''),]
-urbancode$V2 <- as.character(urbancode$V2)
-
-urbancode$V2[18] <- '济源市'
-
-names(urbancode) <- c('uid','uname')
-
-uname <- urbancode$uname
-
-uid <- urbancode$uid
-
-uname <- gsub('(\\s+)','',uname)
-
-names(uid) <- uname
-
-gdp_urban <- read_csv('e:/pyr/data/procdata/gdp_urban.csv',
-         col_names = TRUE,
-         col_types = NULL,
-         locale(encoding = 'gbk'))
-gdp_urban <- gdp_urban[order(gdp_urban$pcg,decreasing = TRUE),]
-
-gdp_urban$ecolvl <- 1 
-
-gdp_urban$ecolvl[7:12] <- 2
-
-gdp_urban$ecolvl[13:18] <- 3
-
-gdp_urban$urban <- gsub('(\\s+)','',gdp_urban$urban)
-
-gdp_urban$uid <- uid[gdp_urban$urban]
-
-gdp_urban$uid <- substr(gdp_urban$uid,1,4)
-
-ecolvl <- gdp_urban$ecolvl
-
-names(ecolvl) <- gdp_urban$uid
-
-df_fee_15$ecolvl <- ecolvl[df_fee_15$hosloc]
 
 
 
