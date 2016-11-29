@@ -1,16 +1,48 @@
-################################ S  ====================================
+df_fee = read_feather(files15[13])
+
+df_veri = read_feather(files15[43])
+
+df_fee = cbind(df_fee,df_veri)
+
+df_fee = tbl_df(df_fee[,c(1,2,4)])
+
+df_fee_seld = df_fee %>% filter(x262 == "False")
+
+df_fee_seld$hosname = hos_dic[df_fee_seld$x5]
+
+df_fee_seld =  df_fee_seld %>% select(x5,hosname,x229)
+
+names(df_fee_seld) = c('id','name','ttlfee')
+
+df_fee_seld = df_fee_seld %>% filter(!is.na(name) & !is.na(ttlfee))
+
+df_fee_seld$ttlfee = as.numeric(df_fee_seld$ttlfee) 
+
+df_fee_15 <- df_fee_seld %>% filter(ttlfee > 0)
+
+df_fee_15 <- tbl_df(df_fee_15)
+
+df_fee_15 <- df_fee_15 %>% filter(ttlfee < 1000000)
+
+df_fee_15 <- tbl_df(df_fee_15)
+
+str(df_fee_15)
+
+codes <- levels(factor(df_fee_15$id))
+
+names <- levels(factor(df_fee_15$name))
+
+df_fee_15 <- df_fee_15 %>% filter(!is.na(name))
+
+################################## S 2 ====================================
 
 df_fee_15 <- read_feather('./data/procdata/py_ttl_fee.pyr')
 
-n_g_b <- paste(df_fee_15$name,
-                 df_fee_15$gen,df_fee_15$bird,sep = '-')
-head(n_g_b)
+df_fee_15 <- 
+             df_fee_15 %>% filter(!(name == 'nan' & gen == 'nan' & bird == 'nan'))
 
-fee_na <- df_fee_15 %>% filter(name == 'nan' | is.na(gen) | is.na(bird))
+df_fee_15 <- df_fee_15 %>% filter(ttlfee >100)
 
-fee_15_perhead %>% summarise(max = max(ttl),min =min(ttl))
-
-fee_15_perhead %>% filter(ttl < 100) %>% View
 
 df_fee_15$bird <- as.integer(df_fee_15$bird)
 
@@ -42,13 +74,9 @@ fee_15_rlt <- fee_15 %>%
             ,ttl = sum(ttlfee)) 
 
 
-  
-fee_15_rlt <- read_feather('/mnt/e/pyr/data/procdata/fee_15.pyr')
-
 df_hngb <- fee_15_rlt$hngb
     
 df_hngb<-unlist(df_hngb)
-
 
 df_hngb<-tstrsplit(df_hngb,split = '-',fixed =TRUE)  
 
@@ -64,11 +92,9 @@ fee_15_perhead <- tbl_df(fee_15_perhead)
 
 names(fee_15_perhead) <- c("hoscode","name","gen","bird","n","mean","ttl" )
 
-fee_perhead_exna <- fee_15_perhead %>% filter(!(name == 'nan' & gen == 'NA' & bird == 'NA')) 
-
 fee_perhead_exna %>% summarise(max(n))
 
-fee_perhead_exna <- fee_perhead_exna %>% filter(!(n>10 & name == 'nan'))
+fee_perhead_exna <- fee_15_perhead %>% filter(!(n>10 & name == 'nan'))
 
 fee_perhead_exna <- fee_perhead_exna %>% filter(ttl > 100)  
 
@@ -77,39 +103,131 @@ fee_perhead_exna %>% group_by(hoscode) %>%
   filter (n > 1000) %>%
   View
 
-dups_exc_nan <- df_fee_15_exc_nan[duplicated(nmgenbir_exc_nan),]
+write_feather(fee_perhead_exna,
+              '/mnt/e/pyr/data/procdata/fee_perhead_exna.pyr')
 
-dups_exc_nan %>% group_by(hosname) %>% summarise(n=n())
+write_feather(df_fee_15,
+              '/mnt/e/pyr/data/procdata/df_fee_15.pyr')
 
-df_fee_15 %>% filter(hoscode == '410000000708') 
 
-fee_exc_dup %>% filter(hoscode == '410000000708') 
+################################ S3 ====================================
 
-(353952 - 245681) / 353952
+hos_info <- read_csv('/mnt/e/pyr/data/procdata/hos_info.csv',
+                     col_names = TRUE,
+                     col_types = NULL,
+                     locale(encoding = 'gbk'))
 
-(177290 - 126288) / 177290
+
+hos_info_colname <- colnames(hos_info)
+
+hos_info_var <- data.frame(colnames(hos_info),hos_info_colname,
+                           stringsAsFactors = FALSE)
+
+
+colnames(hos_info) <- paste('x',c(1:ncol(hos_info)),sep = '')
+
+hoscodes <- levels(factor(fee_perhead$hoscode))
+
+hos_info <- hos_info[hos_info$x2 %in% hoscodes,]
+
+hos_info <- hos_info %>% select(x2,x3,x10,x12)
+
+hoscode <- hos_info$x2 
+
+hoslvl <- hos_info$x12
+
+hosloc <- hos_info$x10
+
+hoslvl[hoslvl == 9] <- 1
+
+names(hoslvl) <- hoscode
+
+names(hosloc) <- hoscode
+
+fee_perhead$hoslvl <- hoslvl[fee_perhead$hoscode]
+
+fee_perhead$hosloc <- hosloc[fee_perhead$hoscode]
+
+fee_perhead$hosloc <- substr(fee_perhead$hosloc,1,4)
+
+areacode <- read_table('/mnt/e/pyr/data/procdata/area.txt',
+                     col_names = FALSE,
+                     col_types = NULL,
+                     locale(encoding = 'gbk'))
+
+urbancode <- areacode[areacode$X1 %in% paste(c(4101:4117,4190),
+                                             '00',sep = ''),]
+urbancode$X2 <- as.character(urbancode$X2)
+
+urbancode$X2[18] <- '济源市'
+
+names(urbancode) <- c('uid','uname')
+
+uname <- urbancode$uname
+
+uid <- urbancode$uid
+
+uname <- gsub('(\\s+)','',uname)
+
+names(uid) <- uname
+
+gdp_urban <- read_csv('/mnt/e/pyr/data/procdata/gdp_urban.csv',
+                      col_names = TRUE,
+                      col_types = NULL,
+                      locale(encoding = 'gbk'))
+gdp_urban <- gdp_urban[order(gdp_urban$pcg,decreasing = TRUE),]
+
+gdp_urban$ecolvl <- 1 
+
+gdp_urban$ecolvl[7:12] <- 2
+
+gdp_urban$ecolvl[13:18] <- 3
+
+gdp_urban$urban <- gsub('(\\s+)','',gdp_urban$urban)
+
+gdp_urban$uid <- uid[gdp_urban$urban]
+
+gdp_urban$uid <- substr(gdp_urban$uid,1,4)
+
+ecolvl <- gdp_urban$ecolvl
+
+names(ecolvl) <- gdp_urban$uid
+
+fee_perhead$ecolvl <- ecolvl[fee_perhead$hosloc]
+
+fee_perhead$hoscode <- as.character(fee_perhead$hoscode)
+
+fee_perhead$hosname <- hos_dic[fee_perhead$hoscode]
+
+write_feather(fee_perhead,'./data/procdata/fee_perhead_full.pyr')
+
+perhead <-fee_perhead %>% group_by(hoscode,hosname) %>% 
+      summarise(n=n(),fee_by_id = mean(ttl)) %>% 
+      filter (n > 1000) %>%
+      View
+
+fee<- fee_15 %>% group_by(hoscode,hosname) %>% 
+  summarise(n=n(),fee_by_id = mean(ttlfee)) %>% 
+  filter (n > 1000) %>%
+  View
+
+###################################S 4==============================
 
 df_fee_15 <- df_fee_15 %>% 
   select(hoscode,hosname,hoslvl,hosloc,ecolvl,ttlfee)
 
+fee_perhead %>% group_by(hosloc) %>%
+  summarise(n=n(),med=median(ttl),mean=mean(ttl))
 
-?duplicated
+fee_perhead %>% group_by(hoslvl) %>%
+  summarise(n=n(),med=median(ttl),mean=mean(ttl))
 
-minouts <- df_fee_15 %>% filter(ttlfee < 50)
+fee_perhead %>% group_by(ecolvl) %>%
+  summarise(n=n(),med=median(ttl),mean=mean(ttl))
 
-qs <- c(0, 0.25, 0.75)
+fee_perhead %>% filter(is.na(ecolvl))
 
-df_fee_15 %>% group_by(hoslvl) %>%
-  summarise(n=n(),quan = list(quantile(ttlfee,qs)),
-            med=median(ttlfee),mean=mean(ttlfee)) %>%
-  str
-
-
-
-
-df_fee_15 %>% group_by(hosloc) %>%
-  summarise(n=n(),med=median(ttlfee),mean=mean(ttlfee))
-
+hos_dic['410000207844']
 
 df_fee_15 %>% group_by(ecolvl) %>%
   summarise(n=n(),med=median(ttlfee),mean=mean(ttlfee))
@@ -127,11 +245,17 @@ ggplot(df_fee_15[df_fee_15$ecolvl==1,],aes(x = ttlfee)) +
 
 ##############################I/O part============================
 
+
 write_feather(df_fee_15,'./data/procdata/py_ttl_fee.pyr')
 
-write_feather(fee_15_rlt,'/mnt/e/pyr/data/procdata/fee_15.pyr')
-
-write_feather(fee_15_rlt,'/mnt/e/pyr/data/procdata/fee_15_exc_na.pyr')
-
 df_fee_15 <- read_feather('./data/procdata/py_ttl_fee.pyr')
+
+fee_perhead <- read_feather('/mnt/e/pyr/data/procdata/fee_perhead_exna.pyr')
+
+load('./data/procdata/hos_dic.rdata')
+
+fee_perhead <- read_feather('/mnt/e/pyr/data/procdata/fee_perhead_full.pyr') ##
+
+fee_15 <- read_feather('/mnt/e/pyr/data/procdata/df_fee_15.pyr')  ##
+
 
