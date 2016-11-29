@@ -10,6 +10,8 @@
     library(readr)
     library(data.table)
     library(ggplot2)
+    library(psych)
+    
     q()
 #========================常用包==================================#
   	library(dplyr)
@@ -49,6 +51,7 @@
 	install.packages("car")
 	install.packages('nortest')	 
 	install.packages("devtools")
+	install.packages('psych')
 	
 	devtools::install_github("wesm/feather/R")
 	source('http://bioconductor.org/biocLite.R')
