@@ -242,6 +242,93 @@ summary(fee_pertime)
 
 psych :: describe(fee_pertime$ttlfee)
 
+
+
+
+
+###############################S 5=============================
+
+var <- fee_15$ttlfee
+h <- 2000
+p_gau<-function(var,h){
+  n<-length(var)
+  rlt_p<-lapply(var,function(x){
+    numerator<-sum(exp(-(((x-var)^2)/(2*h*h))))
+    denominator<-n*h*sqrt(2*pi)
+    p<-numerator/denominator
+    return(p)})
+  rlt_p<-as.numeric(rlt_p)
+  plot(var,rlt_p)
+  return(rlt_p)				 
+}
+
+p_gau(fee_15$ttlfee,2000)
+
+??Burr
+
+exp(dburr(1, 2, 3, log = TRUE))
+
+x <- rnorm(10,5,6)
+
+plot(pburr(x,1,10,5))
+
+str(pburr(x,1,10,5))
+
+pburr(qburr(p, 2, 3, 2), 2, 3, 2)
+
+
+
+f<-function(y,a,b,h,t){
+  k<-(b-a)*y+a+b-2*t
+  z<-exp(-k*k/(8*h*h))
+  z
+}
+
+
+I<-function(a,b,h,t){
+  x1<-0.8611363;x2<-0.339981
+  A<-0.3478548;B<-0.6521452
+  q<-A*(f(x1,a,b,h,t)+f((-1)*x1,a,b,h,t))+
+    B*(f(x2,a,b,h,t)+f((-1)*x2,a,b,h,t))
+  q
+}
+
+p<-function(a,b,h,vecvar){
+  y<-I(a,b,h,vecvar)
+  m<-2*sqrt(2*pi)*h*length(vecvar)
+  p<-(b-a)*y/m
+  sum(p)
+}
+
+p_fee <- p(min(fee_15$ttlfee),max(fee_15$ttlfee),300000,fee_15$ttlfee)
+
+
+
+len <- 24
+x <- runif(len, 0.1, 1)
+y <- x^3 + rnorm(len, 0, 0.06)
+ds <- data.frame(x = x, y = y)
+str(ds)
+
+plot(y ~ x, main = "Known cubic, with noise")
+s <- seq(0, 1, length = 100)
+lines(s, s^3, lty = 2, col = "green")
+
+m <- nls(y ~ I(x^power), data = ds,
+         start = list(power = 1), trace = T)
+
+summary(m)
+
+log(y)
+model <- lm(I(log(y)) ~ I(log(x)))
+
+
+
+
+
+
+
+
 ##############################I/O part============================
 
 
@@ -255,6 +342,6 @@ load('./data/procdata/hos_dic.rdata')
 
 fee_perhead <- read_feather('/mnt/e/pyr/data/procdata/fee_perhead_full.pyr') ##
 
-fee_15 <- read_feather('/mnt/e/pyr/data/procdata/df_fee_15.pyr')  ##
+fee_15 <- read_feather('e:/pyr/data/procdata/df_fee_15.pyr')  ##
 
 
