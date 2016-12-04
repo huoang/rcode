@@ -342,6 +342,6 @@ load('./data/procdata/hos_dic.rdata')
 
 fee_perhead <- read_feather('/mnt/e/pyr/data/procdata/fee_perhead_full.pyr') ##
 
-fee_15 <- read_feather('e:/pyr/data/procdata/df_fee_15.pyr')  ##
+fee_15 <- read_feather('/mnt/e/pyr/data/procdata/df_fee_15.pyr')  ##
 
 
