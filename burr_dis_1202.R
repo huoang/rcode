@@ -442,3 +442,7 @@ ggplot(df_dgamma,aes(x = x1,y=..density..)) +
   coord_cartesian(xlim = c(0,10))
 
 ?dgamma
+
+
+library(xtable)
+xtable(head(iris), caption='你好啊标题！')
