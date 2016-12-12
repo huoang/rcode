@@ -231,18 +231,18 @@ x <- fee_15$ttlfee
 x <- x/10000
 
 library(MASS)
-fitdistr(x = sample(x,1000),
-         densfun = dburr,
-         start = list(shape1 = 1,shape2 = 1.74,rate = 1),# need to provide named list of starting values
-         lower = list(shape1 = 1,shape2 = 1,rate = 1))
 
-fitdistr(x = sample(log(x),100000),
-         densfun = dnorm,
-         start = list(mean = 0,sd = 1),# need to provide named list of starting values
-         lower = list(mean= 0,sd = 1))
 
-x1 <- sample(log(x),100000)
+fitdistr(x = sample(x,100000),
+         densfun = dlnorm,
+         start = list(meanlog = 0,sdlog = 1),# need to provide named list of starting values
+         lower = list(meanlog= 0,sdlog = 1))
 
+<<<<<<< HEAD
+=======
+x1 <- sample(x,100000)
+
+>>>>>>> 40e44543caa9a7d6019689563009f37880d51690
 d <- dnorm(x1,8.43,1.04)
 
 d <- dllogis(x1,1.72,2.29)
@@ -255,23 +255,89 @@ hist(log(x))
 
 plot(x,dnorm(x))
 
-?dnorm
+?dlnorm
 
 set.seed(123)
 x1 = sample(x,10000)
+
+##dnorm
+lx1 = log(x1)
+hist(lx1)
+
+fitdistr(x = lx1,
+         densfun = dnorm,
+         start = list(mean = 0,sd = 1),# need to provide named list of starting values
+         lower = list(mean= 0,sd = 1))
+
+d <- dnorm(lx1,0,1.295)
+
+df_dnorm <- data.frame(lx1,d)
+
+head(df_dnorm)
+
+ggplot(df_dnorm,aes(x = lx1,y=..density..)) +
+
+  geom_histogram(fill = 'cornsilk',color = 'purple',
+                 binwidth = 0.2) +
+  #geom_density()   +
+  geom_line(aes(x=lx1,y=d),colour="red")+
+  #   stat_function(fun = dburr,
+  #              args =list(shape1 = 1,
+  #                         shape2 = 1.73,rate =2.2))+
+  scale_x_continuous(breaks =c(-1,0,1)) +
+  coord_cartesian(xlim = c(-5,5))
+
+##dlnorm
 fitdistr(x = x1,
+         densfun = dlnorm,
+         start = list(meanlog = 0,sdlog = 1),# need to provide named list of starting values
+         lower = list(meanlog= 0,sdlog = 1))
+
+d<- dlnorm(x1,0,1.295)
+
+df_dlnorm <- data.frame(x1,d)
+
+head(df_dlnorm)
+
+ggplot(df_dlnorm,aes(x = x1,y=..density..)) +
+
+  geom_histogram(fill = 'cornsilk',color = 'purple',
+                 binwidth = 0.2) +
+  #geom_density()   +
+  geom_line(aes(x=x1,y=d),colour="red")+
+  #   stat_function(fun = dburr,
+  #              args =list(shape1 = 1,
+  #                         shape2 = 1.73,rate =2.2))+
+  scale_x_continuous(breaks =c(-1,0,1)) +
+  coord_cartesian(xlim = c(0,5))
+
+
+fee_15
+
+##dburr
+set.seed(123)
+x1 = sample(x,100000)
+
+rlt_dburr <- fitdistr(x = x1,
          densfun = dburr,
-         start = list(shape1 = 1,shape2 = 1.74,rate = 1),# need to provide named list of starting values
+         start = list(shape1 = 1,shape2 = 1.74,rate = 2.2),# need to provide named list of starting values
          lower = list(shape1 = 1,shape2 = 1,rate = 1))
 
-d <- dburr(x1,1,1.73,2.2)
+shape1<-rlt_dburr$estimate[1]
+shape2<-rlt_dburr$estimate[2]
+rate<-rlt_dburr$estimate[3]
+
+d <- dburr(x1,shape1,shape2,rate)
 
 df_burr <- data.frame(x1,d)
 
 
-hist(x1)
 
+<<<<<<< HEAD
 h <- ggplot(df_burr,aes(x = x1,y=..density..)) +
+=======
+ ggplot(df_burr,aes(x = x1,y=..density..)) +
+>>>>>>> 40e44543caa9a7d6019689563009f37880d51690
 
      geom_histogram(fill = 'cornsilk',color = 'purple',
                  binwidth = 0.2) +
@@ -280,28 +346,115 @@ h <- ggplot(df_burr,aes(x = x1,y=..density..)) +
   #   stat_function(fun = dburr,
   #              args =list(shape1 = 1,
   #                         shape2 = 1.73,rate =2.2))+
-     scale_x_continuous(breaks = 5) +
+     scale_x_continuous(breaks = seq(0,8,by=2)) +
      coord_cartesian(xlim = c(0,10))
 
+<<<<<<< HEAD
 
 
 h+stat_function(fun = dburr,
                 args =list(shape1 = 1,
                            shape2 = 1.73,rate =2.2))
+=======
 
-h+ggplot(df_burr,aes(x = x1,y=d)) +
-  geom_point()
+##dpareto
+fitdistr(x = x1,
+         densfun = dpareto,
+         start = list(shape =1.6 ,scale = 1),# need to provide named list of starting values
+         lower = list(shape = 1,scale = 1))
+
+d <- dpareto(x1,3.46,2.04)
+
+df_dpareto  <- data.frame(x1,d)
 
 
-stat_function(fun = dburr(x1,shape1 =1,shape2 =1.73,rate =2.2)) +
+ggplot(df_dpareto,aes(x = x1,y=..density..)) +
 
-ggplot(df_burr,aes(x = x1,y=d)) +
-  geom_point() +
-  scale_x_continuous(breaks = 5) +
+  geom_histogram(fill = 'cornsilk',color = 'purple',
+                 binwidth = 0.2) +
+  #geom_density()   +
+  geom_line(aes(x=x1,y=d),colour="red")+
+  #   stat_function(fun = dburr,
+  #              args =list(shape1 = 1,
+  #                         shape2 = 1.73,rate =2.2))+
+  scale_x_continuous(breaks =  seq(0,8,by=2)) +
+  coord_cartesian(xlim = c(0,10))
+>>>>>>> 40e44543caa9a7d6019689563009f37880d51690
+
+
+set.seed(123)
+x1 = sample(x,100000)
+
+##dgllogis
+rlt_dllogis<-fitdistr(x = x1,
+         densfun = dllogis,
+         start = list(shape =1.6 ,rate = 1),# need to provide named list of starting values
+         lower = list(shape = 1,rate = 1))
+
+d <- dllogis(x1,1.73,2.22)
+
+df_dllogis  <- data.frame(x,d)
+
+
+ggplot(df_dllogis,aes(x = x,y=..density..)) +
+
+  geom_histogram(fill = 'cornsilk',color = 'purple',
+                 binwidth = 0.2) +
+  #geom_density()   +
+  geom_line(aes(x=x,y=d),colour="red")+
+  #   stat_function(fun = dburr,
+  #              args =list(shape1 = 1,
+  #                         shape2 = 1.73,rate =2.2))+
+  scale_x_continuous(breaks =  seq(0,8,by=2)) +
   coord_cartesian(xlim = c(0,10))
 
+##dgllogis
+fitdistr(x = x1,
+         densfun = dweibull,
+         start = list(shape =2 ,scale = 1),# need to provide named list of starting values
+         lower = list(shape = 1,scale = 1))
 
-myplot(x1,0.2,1)
+d <- dweibull(x1,1,1)
+
+df_dweibull  <- data.frame(x1,d)
+
+
+ggplot(df_dweibull,aes(x = x1,y=..density..)) +
+
+  geom_histogram(fill = 'cornsilk',color = 'purple',
+                 binwidth = 0.2) +
+  #geom_density()   +
+  geom_line(aes(x=x1,y=d),colour="red")+
+  #   stat_function(fun = dburr,
+  #              args =list(shape1 = 1,
+  #                         shape2 = 1.73,rate =2.2))+
+  scale_x_continuous(breaks =  seq(0,8,by=2)) +
+  coord_cartesian(xlim = c(0,10))
+
+##dgamma
+fitdistr(x = x1,
+         densfun = dgamma,
+         start = list(shape =2 ,rate = 1),# need to provide named list of starting values
+         lower = list(shape = 1,rate = 1))
+
+d <- dgamma(x1,1,1.65)
+
+df_dgamma  <- data.frame(x1,d)
+
+
+ggplot(df_dgamma,aes(x = x1,y=..density..)) +
+
+  geom_histogram(fill = 'cornsilk',color = 'purple',
+                 binwidth = 0.2) +
+  #geom_density()   +
+  geom_line(aes(x=x1,y=d),colour="red")+
+  #   stat_function(fun = dburr,
+  #              args =list(shape1 = 1,
+  #                         shape2 = 1.73,rate =2.2))+
+  scale_x_continuous(breaks =  seq(0,8,by=2)) +
+  coord_cartesian(xlim = c(0,10))
+
+?dgamma
 
 preview_chapter('H:/pyr/bookdown-demo-master/01-intro.Rmd')
 
@@ -614,3 +767,5 @@ rlt_pareto <-fitdistr(x = x1,
   
   
 
+library(xtable)
+xtable(head(iris), caption='你好啊标题！')

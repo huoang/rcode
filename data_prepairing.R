@@ -10,6 +10,7 @@
     library(readr)
     library(data.table)
     library(ggplot2)
+<<<<<<< HEAD
     library(actuar)
     library(FAdist)
     library(feather)
@@ -17,6 +18,12 @@
     library(knitr)
 
 
+=======
+    library(psych)
+    library(feather)
+    library(actuar)
+    library(FAdist)
+>>>>>>> 40e44543caa9a7d6019689563009f37880d51690
     q()
 #========================常用包==================================#
   	library(dplyr)
@@ -26,7 +33,11 @@
 	  library(data.table)
   	library(plyr)
 	  library(reshape2)
+<<<<<<< HEAD
     library(psych)
+=======
+
+>>>>>>> 40e44543caa9a7d6019689563009f37880d51690
 
 
 
@@ -56,9 +67,13 @@
 	install.packages('nortest')
 	install.packages("devtools")
 	install.packages('psych')
+<<<<<<< HEAD
 	install.packages('bookdown')
 	install.packages('FAdist')
   install.packages('knitr')
+=======
+	install.packages('knitr')
+>>>>>>> 40e44543caa9a7d6019689563009f37880d51690
 
 
 	devtools::install_github("wesm/feather/R")
@@ -77,5 +92,10 @@
 	install.packages("ipred")
 	install.packages('actuar')
 
+<<<<<<< HEAD
 
 
+=======
+	R.home('bin')
+	file.path(R.home('share'),'texmf','tex','latex')
+>>>>>>> 40e44543caa9a7d6019689563009f37880d51690
