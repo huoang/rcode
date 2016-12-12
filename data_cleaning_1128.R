@@ -114,70 +114,70 @@ write_feather(df_fee_15,
 
 
 add_vars <- function(df){
-    ## add hoslvl,hosloc
-    hos_info <- read_csv('/mnt/e/pyr/data/procdata/hos_info.csv',
-                     col_names = TRUE,
-                     col_types = NULL,
-                     locale(encoding = 'gbk'))
-    areacode <- read_table('/mnt/e/pyr/data/procdata/area.txt',
-                           col_names = FALSE,
-                           col_types = NULL,
-                           locale(encoding = 'gbk'))
-    gdp_urban <- read_csv('/mnt/e/pyr/data/procdata/gdp_urban.csv',
-                          col_names = TRUE,
-                          col_types = NULL,
-                          locale(encoding = 'gbk'))
-    
-    hos_info_colname <- colnames(hos_info)
-    hos_info_var <- data.frame(colnames(hos_info),hos_info_colname,
-                           stringsAsFactors = FALSE)
-    colnames(hos_info) <- paste('x',c(1:ncol(hos_info)),sep = '')
-    hcode <- hos_info$x2
-    hname <- hos_info$x3
-    names(hname) <- hcode
-    hoscodes <- levels(factor(df$hoscode))
-    hos_info <- hos_info[hos_info$x2 %in% hoscodes,]
-    hos_info <- hos_info %>% select(x2,x3,x10,x12)
-    hoscode <- hos_info$x2 
-    hoslvl <- hos_info$x12
-    hosloc <- hos_info$x10
-    hoslvl[hoslvl == 9] <- 1
-    names(hoslvl) <- hoscode
-    names(hosloc) <- hoscode
-    df$hoscode <- as.character(df$hoscode)
-    df$hoslvl <- hoslvl[df$hoscode]
-    df$hosloc <- hosloc[df$hoscode]
-    df$hosloc <- substr(df$hosloc,1,4)
-    urbancode <- areacode[areacode$X1 %in% 
-                         paste(c(4101:4117,4190),
-                         '00',sep = ''),]
-    urbancode$X2 <- as.character(urbancode$X2)
-    urbancode$X2[18] <- '济源市'
-    names(urbancode) <- c('uid','uname')
-    uname <- urbancode$uname
-    uid <- urbancode$uid
-    uname <- gsub('(\\s+)','',uname)
-    names(uid) <- uname
-    gdp_urban <- gdp_urban[order(gdp_urban$pcg,
-                          decreasing = TRUE),]
-    gdp_urban$ecolvl <- 1 
-    gdp_urban$ecolvl[7:12] <- 2
-    gdp_urban$ecolvl[13:18] <- 3
-    gdp_urban$urban <- gsub('(\\s+)','',gdp_urban$urban)
-    gdp_urban$uid <- uid[gdp_urban$urban]
-    gdp_urban$uid <- substr(gdp_urban$uid,1,4)
-    ecolvl <- gdp_urban$ecolvl
-    names(ecolvl) <- gdp_urban$uid
-    df$ecolvl <- ecolvl[df$hosloc]
-    df$hosname <- hname[df$hoscode]
-    return(df)
-    }
+  ## add hoslvl,hosloc
+  hos_info <- read_csv('e:/pyr/data/procdata/hos_info.csv',
+                       col_names = TRUE,
+                       col_types = NULL,
+                       locale(encoding = 'gbk'))
+  areacode <- read_table('e:/pyr/data/procdata/area.txt',
+                         col_names = FALSE,
+                         col_types = NULL,
+                         locale(encoding = 'gbk'))
+  gdp_urban <- read_csv('e:/pyr/data/procdata/gdp_urban.csv',
+                        col_names = TRUE,
+                        col_types = NULL,
+                        locale(encoding = 'gbk'))
+  
+  hos_info_colname <- colnames(hos_info)
+  hos_info_var <- data.frame(colnames(hos_info),hos_info_colname,
+                             stringsAsFactors = FALSE)
+  colnames(hos_info) <- paste('x',c(1:ncol(hos_info)),sep = '')
+  hcode <- hos_info$x2
+  hname <- hos_info$x3
+  names(hname) <- hcode
+  hoscodes <- levels(factor(df$hoscode))
+  hos_info <- hos_info[hos_info$x2 %in% hoscodes,]
+  hos_info <- hos_info %>% select(x2,x3,x10,x12)
+  hoscode <- hos_info$x2
+  hoslvl <- hos_info$x12
+  hosloc <- hos_info$x10
+  hoslvl[hoslvl == 9] <- 1
+  names(hoslvl) <- hoscode
+  names(hosloc) <- hoscode
+  df$hoscode <- as.character(df$hoscode)
+  df$hoslvl <- hoslvl[df$hoscode]
+  df$hosloc <- hosloc[df$hoscode]
+  df$hosloc <- substr(df$hosloc,1,4)
+  urbancode <- areacode[areacode$X1 %in%
+                          paste(c(4101:4117,4190),
+                                '00',sep = ''),]
+  urbancode$X2 <- as.character(urbancode$X2)
+  urbancode$X2[18] <- '济源市'
+  names(urbancode) <- c('uid','uname')
+  uname <- urbancode$uname
+  uid <- urbancode$uid
+  uname <- gsub('(\\s+)','',uname)
+  names(uid) <- uname
+  gdp_urban <- gdp_urban[order(gdp_urban$pcg,
+                               decreasing = TRUE),]
+  gdp_urban$ecolvl <- 1
+  gdp_urban$ecolvl[7:12] <- 2
+  gdp_urban$ecolvl[13:18] <- 3
+  gdp_urban$urban <- gsub('(\\s+)','',gdp_urban$urban)
+  gdp_urban$uid <- uid[gdp_urban$urban]
+  gdp_urban$uid <- substr(gdp_urban$uid,1,4)
+  ecolvl <- gdp_urban$ecolvl
+  names(ecolvl) <- gdp_urban$uid
+  df$ecolvl <- ecolvl[df$hosloc]
+  df$hosname <- hname[df$hoscode]
+  return(df)
+}
 
 fee_perhead <- read_feather(
   '/mnt/e/pyr/data/procdata/fee_perhead_exna.pyr')
 
 fee_pertime <- read_feather(
-  '/mnt/e/pyr/data/procdata/df_fee_15.pyr')
+  'E:/pyr/data/procdata/df_fee_15.pyr')
 
 
 fee_perhead <- add_vars(fee_perhead)     
@@ -200,7 +200,7 @@ fee_pertime <- fee_pertime[fee_pertime$hoscode %in% selcode$hoscode,]
 
 write_feather(fee_perhead,'/mnt/e/pyr/data/procdata/fee_perhead.pyr')
 
-write_feather(fee_pertime,'/mnt/e/pyr/data/procdata/fee_pertime.pyr')
+write_feather(fee_pertime,'e:/pyr/data/procdata/fee_pertime.pyr')
 
 fee_pertime %>% group_by(hoscode,hosname) %>% 
   summarise(n=n(),fee_by_id = mean(ttlfee)) %>% 
@@ -342,6 +342,6 @@ load('./data/procdata/hos_dic.rdata')
 
 fee_perhead <- read_feather('/mnt/e/pyr/data/procdata/fee_perhead_full.pyr') ##
 
-fee_15 <- read_feather('/mnt/e/pyr/data/procdata/df_fee_15.pyr')  ##
+fee_15 <- read_feather('e:/pyr/data/procdata/df_fee_15.pyr')  ##
 
 
