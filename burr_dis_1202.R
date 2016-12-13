@@ -764,8 +764,78 @@ rlt_pareto <-fitdistr(x = x1,
     coord_cartesian(xlim = c(0,10))
   
   
+  library(MASS)
+  x <- fee_15$ttlfee
+  x <- x/10000
   
+ 
+  breaks <- c(seq(0,2,by=0.5),
+              seq(3,11,by=4),
+              seq(20,100,by=40)
+              )
+  
+  
+  freq_x <- cut(x,breaks=breaks)
+  
+  
+  rlt_burr <- fitdistr(x = x,
+                        densfun = dburr,
+                        start = list(shape1 = 1,shape2 = 1.74,rate = 2.2),# need to provide named list of starting values
+                        lower = list(shape1 = 1,shape2 = 1,rate = 1))
+  
+  shape1<-rlt_burr$estimate[1]
+  shape2<-rlt_burr$estimate[2]
+  rate<-rlt_burr$estimate[3]
+  
+  p_burr <- pburr(x,shape1,shape2,rate)
+  
+  p_burr_breaks <- pburr(breaks,shape1,shape2,rate)
+
+  p_burr_breaks[length(p_burr_breaks)] <- 1
+  
+  p_burr_br <- diff(p_burr_breaks)
+  
+ 
+  
+  freq_x <- table(freq_x)
+  
+  p_x_br <- freq_x/length(x)
+  
+  max(abs(p_x_br-p_burr_br))
+  
+  1.36/sqrt(length(x))
+  
+  
+  
+   
+  
+  freq_burr<-floor(length(x)*p_burr_breaks)
+  
+  sum((freq_burr-freq_x)^2/freq_burr)
+  
+  chisq.test(freq_x,p=(freq_burr/length(x)))
+  
+  sum(freq_burr/length(x))
+  
+  sum(freq_x/length(x))
+  
+  
+  sum(freq_x[2:8])
+  sum(freq_burr[2:6])
+  
+  
+  
+fitdis <- function(x,fun,para1=1,para2=1,para3=NULL){
+    rlt_burr <- fitdistr(x = x,
+      densfun = fun,
+      start = list(para1,para2,para3),# need to provide named list of starting values
+      lower = list(para1,para2,para3))
+    return(rlt_burr)
+  }
   
 
-library(xtable)
-xtable(head(iris), caption='你好啊标题！')
+fitdis(x,dburr,1,1,1)  
+
+
+
+
