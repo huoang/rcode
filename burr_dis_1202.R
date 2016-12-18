@@ -224,13 +224,11 @@ d <- dburr(x2,1,1.72,2.09)
 
 plot(x2,d)
 
+
+
 x <- fee_15$ttlfee
-
-x <- x[x<200000]
-
+#x <- x[x<200000]
 x <- x/10000
-
-
 
 library(MASS)
 
@@ -240,8 +238,11 @@ fitdistr(x = sample(x,100000),
          start = list(meanlog = 0,sdlog = 1),# need to provide named list of starting values
          lower = list(meanlog= 0,sdlog = 1))
 
+<<<<<<< HEAD
+=======
 x1 <- sample(x,100000)
 
+>>>>>>> 40e44543caa9a7d6019689563009f37880d51690
 d <- dnorm(x1,8.43,1.04)
 
 d <- dllogis(x1,1.72,2.29)
@@ -332,7 +333,11 @@ df_burr <- data.frame(x1,d)
 
 
 
+<<<<<<< HEAD
+h <- ggplot(df_burr,aes(x = x1,y=..density..)) +
+=======
  ggplot(df_burr,aes(x = x1,y=..density..)) +
+>>>>>>> 40e44543caa9a7d6019689563009f37880d51690
 
      geom_histogram(fill = 'cornsilk',color = 'purple',
                  binwidth = 0.2) +
@@ -344,6 +349,13 @@ df_burr <- data.frame(x1,d)
      scale_x_continuous(breaks = seq(0,8,by=2)) +
      coord_cartesian(xlim = c(0,10))
 
+<<<<<<< HEAD
+
+
+h+stat_function(fun = dburr,
+                args =list(shape1 = 1,
+                           shape2 = 1.73,rate =2.2))
+=======
 
 ##dpareto
 fitdistr(x = x1,
@@ -367,6 +379,7 @@ ggplot(df_dpareto,aes(x = x1,y=..density..)) +
   #                         shape2 = 1.73,rate =2.2))+
   scale_x_continuous(breaks =  seq(0,8,by=2)) +
   coord_cartesian(xlim = c(0,10))
+>>>>>>> 40e44543caa9a7d6019689563009f37880d51690
 
 
 set.seed(123)
@@ -443,7 +456,390 @@ ggplot(df_dgamma,aes(x = x1,y=..density..)) +
 
 ?dgamma
 
+preview_chapter('H:/pyr/bookdown-demo-master/01-intro.Rmd')
 
+############################# split  ===========================================
+library(MASS)
+
+
+x <- fee_15$ttlfee
+#x <- x[x<200000]
+x <- x/10000
+
+set.seed(123)
+x1 = sample(x,100000)
+
+##dlnorm
+fitdistr(x = x1,
+         densfun = dlnorm,
+         start = list(meanlog = 0,sdlog = 1),# need to provide named list of starting values
+         lower = list(meanlog= 0,sdlog = 1))
+
+d<- dlnorm(x1,0,1.300)
+
+df_dlnorm <- data.frame(x1,d)
+
+head(df_dlnorm)
+
+ggplot(df_dlnorm,aes(x = x1,y=..density..)) +
+  
+  geom_histogram(fill = 'cornsilk',color = 'purple',
+                 binwidth = 0.2) +
+  #geom_density()   +
+  geom_line(aes(x=x1,y=d),colour="red")+
+  #   stat_function(fun = dburr,
+  #              args =list(shape1 = 1,
+  #                         shape2 = 1.73,rate =2.2))+
+  scale_x_continuous(breaks =c(-1,0,1)) +
+  coord_cartesian(xlim = c(0,5))
+
+
+
+
+##dburr
+
+
+rlt_dburr <- fitdistr(x = x1,
+                      densfun = dburr,
+                      start = list(shape1 = 1,shape2 = 1.74,rate = 2.2),# need to provide named list of starting values
+                      lower = list(shape1 = 1,shape2 = 1,rate = 1))
+
+shape1<-rlt_dburr$estimate[1]
+shape2<-rlt_dburr$estimate[2]
+rate<-rlt_dburr$estimate[3]
+
+d <- dburr(x1,shape1,shape2,rate)
+
+df_burr <- data.frame(x1,d)
+
+
+
+ggplot(df_burr,aes(x = x1,y=..density..)) +
+  
+  geom_histogram(fill = 'cornsilk',color = 'purple',
+                 binwidth = 0.2) +
+  #geom_density()   +
+  geom_line(aes(x=x1,y=d),colour="red")+
+  #   stat_function(fun = dburr,
+  #              args =list(shape1 = 1,
+  #                         shape2 = 1.73,rate =2.2))+
+  scale_x_continuous(breaks = seq(0,8,by=2)) +
+  coord_cartesian(xlim = c(0,10))
+
+
+##dpareto
+fitdistr(x = x1,
+         densfun = dpareto,
+         start = list(shape =1.6 ,scale = 1),# need to provide named list of starting values
+         lower = list(shape = 1,scale = 1))
+
+d <- dpareto(x1,3.46,2.04)
+
+df_dpareto  <- data.frame(x1,d)
+
+
+ggplot(df_dpareto,aes(x = x1,y=..density..)) +
+  
+  geom_histogram(fill = 'cornsilk',color = 'purple',
+                 binwidth = 0.2) +
+  #geom_density()   +
+  geom_line(aes(x=x1,y=d),colour="red")+
+  #   stat_function(fun = dburr,
+  #              args =list(shape1 = 1,
+  #                         shape2 = 1.73,rate =2.2))+
+  scale_x_continuous(breaks =  seq(0,8,by=2)) +
+  coord_cartesian(xlim = c(0,10))
+
+
+set.seed(123)
+x1 = sample(x,100000)
+
+##dgllogis
+rlt_dllogis<-fitdistr(x = x1,
+                      densfun = dllogis,
+                      start = list(shape =1.6 ,rate = 1),# need to provide named list of starting values
+                      lower = list(shape = 1,rate = 1))
+
+d <- dllogis(x1,1.73,2.22)
+
+df_dllogis  <- data.frame(x1,d)
+
+
+ggplot(df_dllogis,aes(x = x1,y=..density..)) +
+  
+  geom_histogram(fill = 'cornsilk',color = 'purple',
+                 binwidth = 0.2) +
+  #geom_density()   +
+  geom_line(aes(x=x1,y=d),colour="red")+
+  #   stat_function(fun = dburr,
+  #              args =list(shape1 = 1,
+  #                         shape2 = 1.73,rate =2.2))+
+  scale_x_continuous(breaks =  seq(0,8,by=2)) +
+  coord_cartesian(xlim = c(0,10))
+
+##dWeibull
+fitdistr(x = x1,
+         densfun = dweibull,
+         start = list(shape =2 ,scale = 1),# need to provide named list of starting values
+         lower = list(shape = 1,scale = 1))
+
+d <- dweibull(x1,1,1)
+
+df_dweibull  <- data.frame(x1,d)
+
+
+ggplot(df_dweibull,aes(x = x1,y=..density..)) +
+  
+  geom_histogram(fill = 'cornsilk',color = 'purple',
+                 binwidth = 0.2) +
+  #geom_density()   +
+  geom_line(aes(x=x1,y=d),colour="red")+
+  #   stat_function(fun = dburr,
+  #              args =list(shape1 = 1,
+  #                         shape2 = 1.73,rate =2.2))+
+  scale_x_continuous(breaks =  seq(0,8,by=2)) +
+  coord_cartesian(xlim = c(0,10))
+
+##dgamma
+fitdistr(x = x1,
+         densfun = dgamma,
+         start = list(shape =2 ,rate = 1),# need to provide named list of starting values
+         lower = list(shape = 1,rate = 1))
+
+d <- dgamma(x1,1,1.65)
+
+df_dgamma  <- data.frame(x1,d)
+
+
+ggplot(df_dgamma,aes(x = x1,y=..density..)) +
+  
+  geom_histogram(fill = 'cornsilk',color = 'purple',
+                 binwidth = 0.2) +
+  #geom_density()   +
+  geom_line(aes(x=x1,y=d),colour="red")+
+  #   stat_function(fun = dburr,
+  #              args =list(shape1 = 1,
+  #                         shape2 = 1.73,rate =2.2))+
+  scale_x_continuous(breaks =  seq(0,8,by=2)) +
+  coord_cartesian(xlim = c(0,10))
+
+
+  binsize <- diff(range(x)) / 0.2
+           plot(cume_dist(-x))
+  
+  breaks  <- c(seq(0,2,by=0.2),
+             seq(3,5,by=1),
+             seq(10,20,by=5),
+             seq(30,max(x),by=50),
+             100)
+             
+  
+  hist_x<-hist(x,breaks=breaks)
+  
+  
+  
+  str(hist_x)
+  
+  freq_x <- cut(x,breaks = breaks)
+  
+  
+  
+  d_burr_breaks
+  
+  rlt_dburr <- fitdistr(x = x,
+                        densfun = dburr,
+                        start = list(shape1 = 1,shape2 = 1.74,rate = 2.2),# need to provide named list of starting values
+                        lower = list(shape1 = 1,shape2 = 1,rate = 1))
+  
+  shape1<-rlt_dburr$estimate[1]
+  shape2<-rlt_dburr$estimate[2]
+  rate<-rlt_dburr$estimate[3]
+  
+  
+  p_burr_breaks <- pburr(breaks,shape1,shape2,rate)
+  
+  p_burr <- pburr(x,shape1,shape2,rate)
+  
+  freq_burr <- cut(p_burr,breaks = p_burr_breaks)
+  
+  table(freq_x)
+  
+  table(freq_burr)
+  
+###################################pWeibull============================================
+  fitdistr(x = x,
+           densfun = dweibull,
+           start = list(shape =2 ,scale = 1),# need to provide named list of starting values
+           lower = list(shape = 1,scale = 1))
+  
+  p_wb <- pweibull(x,1,1)
+  
+
+  
+  p_wb_breaks <- pweibull(breaks,1,1)
+  
+  freq_wb <- cut(p_wb,breaks = p_wb_breaks)
+  
+  table(freq_x)
+  
+  table(freq_wb)
+  
+###################################pllogis============================================
+  rlt_dllogis<-fitdistr(x = x,
+               densfun = dllogis,
+               start = list(shape =1.6 ,rate = 1),# need to provide named list of starting values
+               lower = list(shape = 1,rate = 1))
+  
+  rlt_dllogis
+  
+  shape = rlt_dllogis$estimate[1]
+  
+  rate = rlt_dllogis$estimate[2]
+  
+  p_llogis <- pllogis(x,shape,rate)
+  
+  p_llogis_breaks <- pllogis(breaks,shape,rate)
+  
+  freq_llogis <- cut(p_llogis,breaks = p_llogis_breaks)
+  
+  table(freq_x)
+  
+  table(freq_llogis)
+  
+###################################ppareto============================================
+rlt_pareto <-fitdistr(x = x1,
+           densfun = dpareto,
+           start = list(shape =1.6 ,scale = 1),# need to provide named list of starting values
+           lower = list(shape = 1,scale = 1))
+  
+  rlt_pareto
+  
+  shape = rlt_pareto$estimate[1]
+  
+  scale = rlt_pareto$estimate[2]
+  
+  p_pareto <- ppareto(x1,shape,scale)
+  
+  
+  table(freq_x)
+  
+  table(freq_pareto)
+  
+  cumsum(p_pareto$x)[p_pareto$ix]
+  
+  
+  tail(cumsum(x[freq_x=='(0,0.2]'])/sum(x[freq_x=='(0,0.2]']))
+  
+  x1 <- sort(x,decreasing = FALSE,method="quick")
+  
+  cum_x <- cumsum(x1)/sum(x1)
+  
+  head(cum_x)
+  
+  freq_x <- cut(x1,breaks = breaks)
+  
+  sum(x1[freq_x=='(0,0.2]'])/sum(x1)
+  
+  cum_x[cum_x<=0.02967656]
+  
+  p_pareto[p_pareto<=0.02967656]
+  
+  
+  head(cum_x)
+  head(p_pareto)
+  tail(p_pareto)
+  
+  x2<-sample(x1,100000)
+  p_pareto <- ppareto(x2,shape,scale)
+  df_ppareto  <- data.frame(x2,p_pareto)
+  
+  
+  ggplot(df_ppareto,aes(x = x2,y=p_pareto)) +
+    
+    geom_line(colour="red")+
+    #   stat_function(fun = dburr,
+    #              args =list(shape1 = 1,
+    #                         shape2 = 1.73,rate =2.2))+
+    scale_x_continuous(breaks =  seq(0,8,by=2)) +
+    coord_cartesian(xlim = c(0,10))
+  
+  
+  library(MASS)
+  x <- fee_15$ttlfee
+  x <- x/10000
+  
+ 
+  breaks <- c(seq(0,2,by=0.5),
+              seq(3,11,by=4),
+              seq(20,100,by=40)
+              )
+  
+  
+  freq_x <- cut(x,breaks=breaks)
+  
+  
+  rlt_burr <- fitdistr(x = x,
+                        densfun = dburr,
+                        start = list(shape1 = 1,shape2 = 1.74,rate = 2.2),# need to provide named list of starting values
+                        lower = list(shape1 = 1,shape2 = 1,rate = 1))
+  
+  shape1<-rlt_burr$estimate[1]
+  shape2<-rlt_burr$estimate[2]
+  rate<-rlt_burr$estimate[3]
+  
+  p_burr <- pburr(x,shape1,shape2,rate)
+  
+  p_burr_breaks <- pburr(breaks,shape1,shape2,rate)
+
+  p_burr_breaks[length(p_burr_breaks)] <- 1
+  
+  p_burr_br <- diff(p_burr_breaks)
+  
+ 
+  
+  freq_x <- table(freq_x)
+  
+  p_x_br <- freq_x/length(x)
+  
+  max(abs(p_x_br-p_burr_br))
+  
+  1.36/sqrt(length(x))
+  
+  
+  
+   
+  
+  freq_burr<-floor(length(x)*p_burr_breaks)
+  
+  sum((freq_burr-freq_x)^2/freq_burr)
+  
+  chisq.test(freq_x,p=(freq_burr/length(x)))
+  
+  sum(freq_burr/length(x))
+  
+  sum(freq_x/length(x))
+  
+  
+  sum(freq_x[2:8])
+  sum(freq_burr[2:6])
+  
+  
+  
+fitdis <- function(x,fun,para1=1,para2=1,para3=NULL){
+    rlt_burr <- fitdistr(x = x,
+      densfun = fun,
+      start = list(para1,para2,para3),# need to provide named list of starting values
+      lower = list(para1,para2,para3))
+    return(rlt_burr)
+  }
+  
+
+fitdis(x,dburr,1,1,1)  
+
+
+
+
+<<<<<<< HEAD
 library(xtable)
 xtable(head(iris), caption='你好啊标题！')
 
@@ -696,3 +1092,5 @@ ks.test(x1,'plnorm',mlog,sdlog)
 ??dllogis
 ?dbeta
 
+=======
+>>>>>>> 6be80214ad39b3cbe3470a1af8203d1dca974554
