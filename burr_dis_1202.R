@@ -446,3 +446,253 @@ ggplot(df_dgamma,aes(x = x1,y=..density..)) +
 
 library(xtable)
 xtable(head(iris), caption='你好啊标题！')
+
+
+#################################ppre=============================
+
+library(FAdist)
+library(MASS)
+library(actuar)
+
+rlt_pre <- fitdistr(x = x,
+         densfun = dpareto,
+         start = list(shape =1.6 ,scale = 1),# need to provide named list of starting values
+         lower = list(shape = 1,scale = 1))
+
+shape <- rlt_pre$estimate[1]
+scale <- rlt_pre$estimate[2]
+
+p_pre <- ppareto(x,shape,scale)
+
+breaks  <- c(seq(0,2,by=0.2),
+             seq(3,5,by=1),
+             seq(10,20,by=5),
+             seq(30,max(x),by=50),
+             100)
+
+p_pre_bre <- ppareto(breaks,shape,scale)
+  
+  
+length(x)*0.2767313
+  
+#################################pburr=============================
+rlt_dburr <- fitdistr(x = x,
+                      densfun = dburr,
+                      start = list(shape1 = 1,shape2 = 1.74,rate = 2.2),# need to provide named list of starting values
+                      lower = list(shape1 = 1,shape2 = 1,rate = 1))
+
+shape1<-rlt_dburr$estimate[1]
+shape2<-rlt_dburr$estimate[2]
+rate<-rlt_dburr$estimate[3]
+
+p_burr <- pburr(x,shape1,shape2,rate)
+
+p_burr_break <- pburr(breaks,shape1,shape2,rate)
+
+freq_x <- cut(x,breaks = breaks)
+
+length(table(freq_x))
+
+p_pre_burr[-1][length(p_pre_burr)] <- p_pre_burr[length(p_pre_burr)]
+
+p_burr_inter <-p_burr_break[-1]
+
+p_burr_inter[length(p_burr_inter)+1] <- p_burr_break[
+  length(p_burr_break)]
+
+p_interval <- (p_burr_inter - p_burr_break)
+
+freq_burr <- length(x)*p_interval
+  
+freq_burr <- floor(freq_burr)  
+
+freq_burr <- freq_burr[1:(length(freq_burr)-1)]
+
+freq_x <- table(freq_x)
+
+
+data.frame(freq_x,freq_burr)
+
+sum((freq_burr-freq_x)^2/freq_burr)
+
+rlt_chi <- chisq.test(freq_x,freq_burr)
+
+str(rlt_chi)
+
+rlt_chi$observed
+
+(freq_burr[1]-freq_x[1])^2/freq_burr[1]
+
+(freq_burr[2]-freq_x[2])^2/freq_burr[2]
+
+rlt_chi$p.value
+rlt_chi$expected
+rlt_chi$parameter
+rlt_chi$residuals
+
+x1 <- sample(x,100000)
+
+p_burr <- pburr(x1,shape1,shape2,rate)
+
+p_burr_break <- pburr(breaks,shape1,shape2,rate)
+
+freq_x1 <- cut(x1,breaks = breaks)
+
+length(table(freq_x1))
+
+
+p_burr_inter <-p_burr_break[-1]
+
+p_burr_inter[length(p_burr_inter)+1] <- p_burr_break[
+  length(p_burr_break)]
+
+p_interval <- (p_burr_inter - p_burr_break)
+
+freq_burr <- length(x1)*p_interval
+
+freq_burr <- floor(freq_burr)  
+
+freq_burr <- freq_burr[1:(length(freq_burr)-1)]
+
+freq_x1 <- table(freq_x1)
+
+sum((freq_burr-freq_x1)^2/freq_burr)
+
+chisq.test(freq_burr,freq_x1)
+
+?chisq.test
+
+
+M <- as.table(rbind(c(762, 327, 468), c(484, 239, 477)))
+dimnames(M) <- list(gender = c("F", "M"),
+                    party = c("Democrat","Independent", "Republican"))
+Xsq <- chisq.test(M) 
+
+chisq.test(freq_x1,freq_burr)
+
+data.frame(freq_x1,freq_burr,freq_burr-freq_x1)[,c(2,3,5)]
+
+308*308/709
+
+chisq(20)
+
+
+ks.test(freq_burr,freq_x)
+
+ks.test(x,'pburr',shape1,shape2,rate)
+
+?pburr
+
+exp(dburr(1, 2, 3,2))
+p <- (1:10)/10
+pburr(qburr(p, 2, 3, 2), 2, 3, 2)
+
+rlt_pareto<- fitdistr(x = x,
+         densfun = dpareto,
+         start = list(shape =1.6 ,scale = 1),# need to provide named list of starting values
+         lower = list(shape = 1,scale = 1))
+shape_pareto = rlt_pareto$estimate[1]
+scale_pareto = rlt_pareto$estimate[2]
+p_pareto <- ppareto(x,shape_pareto,scale_pareto)
+
+ks.test(x,ppareto,shape_pareto,scale_pareto,'less')
+
+rlt_gamma <- fitdistr(x = x,
+         densfun = dgamma,
+         start = list(shape =2 ,rate = 1),# need to provide named list of starting values
+         lower = list(shape = 1,rate = 1))
+
+ks.test(x,"rnorm",1,1, exact = FALSE)
+
+b <- rburr(10000,1,1.72,2)
+
+ks.test(b,'pburr',1,1.72,2)
+
+
+
+
+
+x <- rnorm(50)
+
+x2 <- rnorm(50, -1)
+
+plot(ecdf(x), xlim = range(c(x, x2)))
+
+plot(ecdf(x2), add = TRUE, lty = "dashed")
+
+ks.test(x, x2, alternative = "l")
+
+x <- fee_15$ttlfee
+
+x <- x[x<200000]
+
+x <- x/10000
+
+set.seed(123)
+x1<-sample(x,6000)
+rlt_dburr <- fitdistr(x = x1,
+             densfun = dburr,
+             start = list(shape1 = 1,shape2 = 1.74,rate = 2.2),# need to provide named list of starting values
+             lower = list(shape1 = 1,shape2 = 1,rate = 1))
+shape1<-rlt_dburr$estimate[1]
+shape2<-rlt_dburr$estimate[2]
+rate<-rlt_dburr$estimate[3]
+ks.test(x1,'pburr',shape1,shape2,rate)
+
+
+x1<-sample(x,3000)
+rlt_pareto<- fitdistr(x = x1,
+                      densfun = dpareto,
+                      start = list(shape =1.6 ,scale = 1),# need to provide named list of starting values
+                      lower = list(shape = 1,scale = 1))
+shape_pareto = rlt_pareto$estimate[1]
+scale_pareto = rlt_pareto$estimate[2]
+
+ks.test(x1,'ppareto',shape_pareto,scale_pareto)
+
+
+x1<-sample(x,3000)
+rlt_gamma <- fitdistr(x = x1,
+                      densfun = dgamma,
+                      start = list(shape =2 ,rate = 1),# need to provide named list of starting values
+                      lower = list(shape = 1,rate = 1))
+
+shape_gamma = rlt_gamma$estimate[1]
+rate_gamma = rlt_gamma$estimate[2]
+
+ks.test(x1,'pgamma',shape_gamma,rate_gamma)
+
+x1<-sample(x,3000)
+rlt_dllogis<-fitdistr(x = x1,
+                      densfun = dllogis,
+                      start = list(shape =1.6 ,rate = 1),# need to provide named list of starting values
+                      lower = list(shape = 1,rate = 1))
+
+shape_llogis <- rlt_dllogis$estimate[1]
+rate_llogis <- rlt_dllogis$estimate[2]
+
+ks.test(x1,'pllogis',shape_llogis,rate_llogis)
+
+x1<-sample(x,3000)
+rlt_wb <- fitdistr(x = x1,
+         densfun = dweibull,
+         start = list(shape =2 ,scale = 1),# need to provide named list of starting values
+         lower = list(shape = 1,scale = 1))
+
+ks.test(x1,'pweibull',1,1)
+
+x1<-sample(x,3000)
+rlt_lnorm<- fitdistr(x = x1,
+         densfun = dlnorm,
+         start = list(meanlog = 0,sdlog = 1),# need to provide named list of starting values
+         lower = list(meanlog= 0,sdlog = 1))
+
+mlog <- rlt_lnorm$estimate[1]
+sdlog <- rlt_lnorm$estimate[2]
+
+ks.test(x1,'plnorm',mlog,sdlog)
+
+??dlnorm
+??dllogis
+?dbeta
+
