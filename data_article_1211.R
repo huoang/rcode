@@ -508,7 +508,7 @@ test_lnorm <- function(m,x,loopnum){
   rlt_chisq <- 0
   for (loopcnt in 1:loopnum){
     x1<-sample(x,2000)
-    rlt_lnorm <- fitdistr(x = x1,
+    rlt <- fitdistr(x = x1,
                            densfun = m,
                            start = list(meanlog = 0,sdlog=1),# need to provide named list of starting values
                            lower = list(meanlog = 0,sdlog=1))
@@ -549,7 +549,7 @@ test_weibull <- function(m,x,loopnum){
   #rlt_chisq <- 0
   for (loopcnt in 1:loopnum){
     x1<-sample(x,2000)
-    rlt_lnorm <- fitdistr(x = x1,
+    rlt <- fitdistr(x = x1,
                           densfun = m,
                           start = list(shape = 1,scale=1),# need to provide named list of starting values
                           lower = list(shape = 0,scale=0))
@@ -575,7 +575,7 @@ test_weibull <- function(m,x,loopnum){
   return(df_rlt)
 }
 
-rlt <- test_weibull(dweibull,x,1000)
+rlt <- test_weibull(dweibull,x,100)
 
 sum(rlt$rlt_ks < 0.05) 
 
