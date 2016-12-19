@@ -140,7 +140,7 @@ ggplot(df_pareto,aes(x = x1,y=..density..)) +
   #                         shape2 = 1.73,rate =2.2))+
   scale_x_continuous(breaks = seq(0,12,by=3)) +
   coord_cartesian(xlim = c(0,12)) +
-  labs(x = '住院医疗总费用(万元)',y = NULL) +    #,y = '概率密度') +
+  labs(x = '住院医疗总费用(万元)',y = '概率密度') +    #,y = NULL) +
   annotate('text',x=7,y=1.5,
            label = 'Pareto分布模型拟合图') +
   annotate('text',x=4,y=1.5,label = '图2：') +
@@ -196,7 +196,7 @@ ggplot(df_weibull,aes(x = x1,y=..density..)) +
   #                         shape2 = 1.73,rate =2.2))+
   scale_x_continuous(breaks = seq(0,12,by=3)) +
   coord_cartesian(xlim = c(0,12)) +
-  labs(x = '住院医疗总费用(万元)',y = NULL)+  #y = '概率密度') +
+  labs(x = '住院医疗总费用(万元)',y ='概率密度' )+  #y = NULL) +
   annotate('text',x=7,y=1.3,
            label = 'Weibull分布模型拟合图') +
   annotate('text',x=4,y=1.3,label = '图3：') +
@@ -309,7 +309,7 @@ ggplot(df_llogis,aes(x = x1,y=..density..)) +
   #                         shape2 = 1.73,rate =2.2))+
   scale_x_continuous(breaks = seq(0,12,by=3)) +
   coord_cartesian(xlim = c(0,12)) +
-  labs(x = '住院医疗总费用(万元)',y = NULL)+  #y = '概率密度') +
+  labs(x = '住院医疗总费用(万元)',y = '概率密度')+  #y = NULL) +
   annotate('text',x=7,y=1.3,
            label = 'Llogistic分布模型拟合图') +
   annotate('text',x=4,y=1.3,label = '图5：') +
@@ -434,6 +434,11 @@ df_cdf <- data.frame(x1,p_x1,p_llogis_x1,p_burr_x1,
 
 df_cdf <- melt(df_cdf,id='x1')
 
+levels(df_cdf$variable) <- c('实际概率','Llogisitc',
+                             'Burr','Weibull','Pareto'
+                             ,'Lnorm')
+
+names(df_cdf)[2] <- c('分布模型')
 
 ggplot(df_cdf,aes(x = x1,y = value,colour = 分布模型)) +
       geom_line() +
@@ -446,11 +451,7 @@ ggplot(df_cdf,aes(x = x1,y = value,colour = 分布模型)) +
       theme(legend.key = element_blank())
 
 
-levels(df_cdf$variable) <- c('实际概率','Llogisitc',
-                             'Burr','Weibull','Pareto'
-                             ,'Lnorm')
 
-names(df_cdf)[2] <- c('分布模型')
 
 
 
@@ -496,7 +497,8 @@ rlt <- test_llogis(dllogis,x,1000)
 
 sum(rlt$rlt_ks <= 0.05) 
 
-
+rlt_llogis_1000 <- test_llogis(dllogis,x,1000)
+rlt_llogis_5000 <- test_llogis(dllogis,x,5000)
 
 
 ############################test lnorm==========================
@@ -535,7 +537,9 @@ test_lnorm <- function(m,x,loopnum){
 }
 
 
-rlt <- test_lnorm(dlnorm,x,100)
+rlt_lnorm_1000 <- test_lnorm(dlnorm,x,1000)
+rlt_lnorm_5000 <- test_lnorm(dlnorm,x,5000)
+
 
 sum(rlt$rlt_ks < 0.05)  
 
@@ -575,7 +579,8 @@ test_weibull <- function(m,x,loopnum){
   return(df_rlt)
 }
 
-rlt <- test_weibull(dweibull,x,100)
+rlt_weibull_1000 <- test_weibull(dweibull,x,1000)
+rlt_weibull_5000 <- test_weibull(dweibull,x,5000)
 
 sum(rlt$rlt_ks < 0.05) 
 
@@ -614,7 +619,8 @@ test_pareto <- function(m,x,loopnum){
   return(df_rlt)
 }
 
-rlt <- test_pareto(dpareto,x,1000)
+rlt_pareto_1000 <- test_pareto(dpareto,x,1000)
+rlt_pareto_5000 <- test_pareto(dpareto,x,5000)
 sum(rlt$rlt_ks < 0.05) 
 
 ############################test burr================================
@@ -630,7 +636,7 @@ test_burr <- function(m,x,loopnum){
     x1<-sample(x,2000)
     rlt <- fitdistr(x = x1,
                     densfun = m,
-                    start = list(shape1 = 1,shape2=1.7,rate = 2),# need to provide named list of starting values
+                    start = list(shape1 = 1,shape2=1.7,rate = 2.2),# need to provide named list of starting values
                     lower = list(shape1 = 1,shape2=1,rate = 1))
     
     para1_rep <- rlt$estimate[1]
@@ -647,9 +653,41 @@ test_burr <- function(m,x,loopnum){
   return(df_rlt)
 }
 
-rlt <- test_burr(dburr,x,1000)
+rlt_burr_1000 <- test_burr(dburr,x,1000)
+rlt_burr_5000 <- test_burr(dburr,x,5000)
+
 sum(rlt$rlt_ks < 0.5) 
 
-x2 <- sample(x,2000) 
-ks.test(x2,pburr,1,1.719,2.235)
+
+
+
+names(rlt_llogis_1000) <-c('para1','para2','rlt_ks')
+names(rlt_burr_1000)[2:4] <- c('para1','para2','rlt_ks')
+rlt_1000 <- rbind(rlt_lnorm_1000,rlt_pareto_1000,
+      rlt_weibull_1000,rlt_llogis_1000[,1:3],rlt_burr_1000[,2:4])
+
+names(rlt_llogis_5000) <-c('para1','para2','rlt_ks')
+names(rlt_burr_5000)[2:4] <- c('para1','para2','rlt_ks')
+rlt_5000 <- rbind(rlt_lnorm_5000,rlt_pareto_5000,
+         rlt_weibull_5000,rlt_llogis_5000[,1:3],rlt_burr_5000[,2:4])
+
+rlt_1000$model[1:1000] <- 'lnorm'
+rlt_1000$model[1001:2000] <- 'pareto'
+rlt_1000$model[2001:3000] <- 'weibull'
+rlt_1000$model[3001:4000] <- 'llogis'
+rlt_1000$model[4001:5000] <- 'burr'
+
+rlt_5000$model[1:5000] <- 'lnorm'
+rlt_5000$model[1001:2000] <- 'pareto'
+rlt_5000$model[2001:3000] <- 'weibull'
+rlt_5000$model[3001:4000] <- 'llogis'
+rlt_5000$model[4001:5000] <- 'burr'
+
+save(rlt_1000,file = 'e:/pyr/data/procdata/rlt_1000.rdata' )
+save(rlt_5000,file = 'e:/pyr/data/procdata/rlt_5000.rdata' )
+
+
+
+ 
+
 
