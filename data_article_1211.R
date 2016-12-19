@@ -678,16 +678,28 @@ rlt_1000$model[3001:4000] <- 'llogis'
 rlt_1000$model[4001:5000] <- 'burr'
 
 rlt_5000$model[1:5000] <- 'lnorm'
-rlt_5000$model[1001:2000] <- 'pareto'
-rlt_5000$model[2001:3000] <- 'weibull'
-rlt_5000$model[3001:4000] <- 'llogis'
-rlt_5000$model[4001:5000] <- 'burr'
+rlt_5000$model[5001:10000] <- 'pareto'
+rlt_5000$model[10001:15000] <- 'weibull'
+rlt_5000$model[15001:20000] <- 'llogis'
+rlt_5000$model[20001:25000] <- 'burr'
 
 save(rlt_1000,file = 'e:/pyr/data/procdata/rlt_1000.rdata' )
 save(rlt_5000,file = 'e:/pyr/data/procdata/rlt_5000.rdata' )
 
-
-
+load('e:/pyr/data/procdata/rlt_1000.rdata')
+load('e:/pyr/data/procdata/rlt_5000.rdata')
  
+head(rlt_1000)
 
+rlt_5000 %>% group_by(model) %>%
+      summarise(para1m = mean(para1),para1sd = sd(para1),
+                para2m = mean(para2),para2sd = sd(para2),
+                acctimes = sum(rlt_ks > 0.05))
+
+rlt_1000 %>% group_by(model) %>%
+  summarise(para1m = mean(para1),para1sd = sd(para1),
+            para2m = mean(para2),para2sd = sd(para2),
+            acctimes = sum(rlt_ks > 0.05))
+  
+  
 
